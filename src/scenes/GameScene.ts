@@ -7,6 +7,7 @@ import {
 import { ShapeDefinition, CellPosition, ClearResult } from '../types';
 import { createEmptyGrid, canPlaceShape, placeShape, checkAndClear, calculateScore, canPlaceAnyShape } from '../logic/GridLogic';
 import { getRandomShape, getShapeCellCount } from '../data/shapes';
+import { HapticService } from '../services/HapticService';
 
 export class GameScene extends Phaser.Scene {
     private grid!: (number | null)[][];
@@ -326,6 +327,7 @@ export class GameScene extends Phaser.Scene {
         if (gridPos && canPlaceShape(this.grid, this.dragShape, gridPos.row, gridPos.col)) {
             const placedCells = placeShape(this.grid, this.dragShape, gridPos.row, gridPos.col);
             this.onBlockPlaced(placedCells, this.dragShape);
+            HapticService.light();
             placed = true;
         }
 
@@ -445,6 +447,7 @@ export class GameScene extends Phaser.Scene {
         if (comboCount >= 1) {
             const intensity = Math.min(comboCount * 2, 10);
             this.cameras.main.shake(ANIM.SCREEN_SHAKE, intensity * 0.001);
+            HapticService.medium();
         }
 
         // Royal combo text
@@ -473,6 +476,7 @@ export class GameScene extends Phaser.Scene {
             // Golden sparkle ring for big combos
             if (comboCount >= 3) {
                 this.spawnGoldenRing();
+                HapticService.heavy();
             }
         }
     }
@@ -555,6 +559,7 @@ export class GameScene extends Phaser.Scene {
     // ─── Game Over ───
 
     private gameOver(): void {
+        HapticService.error();
         const overlay = this.add.graphics().setDepth(50);
         overlay.fillStyle(0x000000, 0.75);
         overlay.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
