@@ -24,6 +24,7 @@ export class GameScene extends Phaser.Scene {
     private dragIndex = -1;
     private dragContainer: Phaser.GameObjects.Container | null = null;
     private particleGraphics!: Phaser.GameObjects.Graphics;
+    private isGameOver = false;
 
     constructor() {
         super({ key: SCENES.GAME });
@@ -101,12 +102,11 @@ export class GameScene extends Phaser.Scene {
     // ─── Tray Hit Detection (fallback for touch) ───
 
     private onPointerDown(pointer: Phaser.Input.Pointer): void {
-        if (this.dragShape) return; // already dragging
+        if (this.dragShape || this.isGameOver) return;
 
-        // Check if pointer is in tray area
-        const trayTop = TRAY_Y - 55;
-        const trayBottom = TRAY_Y + 55;
-        if (pointer.y < trayTop || pointer.y > trayBottom) return;
+        // Accept any tap in bottom portion of screen (below grid)
+        const gridBottom = GRID_Y + GRID_ROWS * (CELL_SIZE + GRID_GAP);
+        if (pointer.y < gridBottom) return;
 
         // Find which tray slot was tapped
         const spacing = GAME_WIDTH / 3;
@@ -582,6 +582,7 @@ export class GameScene extends Phaser.Scene {
     // ─── Game Over ───
 
     private gameOver(): void {
+        this.isGameOver = true;
         HapticService.error();
         const overlay = this.add.graphics().setDepth(50);
         overlay.fillStyle(0x000000, 0.75);
@@ -617,7 +618,7 @@ export class GameScene extends Phaser.Scene {
             fontSize: '16px', fontFamily: 'Arial', color: THEME.TEXT_SECONDARY,
         }).setOrigin(0.5).setDepth(52);
 
-        // Royal restart button
+        // Royal restart button — full-width clickable zone
         const btnBg = this.add.graphics().setDepth(52);
         const btnX = GAME_WIDTH / 2 - 80, btnY = panelY + 185, btnW = 160, btnH = 48;
         btnBg.fillStyle(THEME.GOLD_DARK, 1);
@@ -627,17 +628,22 @@ export class GameScene extends Phaser.Scene {
         btnBg.fillStyle(THEME.GOLD_LIGHT, 0.4);
         btnBg.fillRoundedRect(btnX + 4, btnY + 3, btnW - 8, btnH * 0.45, 8);
 
-        const btn = this.add.text(GAME_WIDTH / 2, btnY + btnH / 2, 'Play Again', {
+        this.add.text(GAME_WIDTH / 2, btnY + btnH / 2, 'Play Again', {
             fontSize: '18px', fontFamily: 'Arial', color: '#3a2000',
             fontStyle: 'bold',
-        }).setOrigin(0.5).setDepth(53).setInteractive({ useHandCursor: true });
+        }).setOrigin(0.5).setDepth(53);
 
-        // Make entire button area clickable
-        const hitZone = this.add.rectangle(GAME_WIDTH / 2, btnY + btnH / 2, btnW, btnH, 0x000000, 0)
-            .setDepth(53).setInteractive({ useHandCursor: true });
-
-        const restart = () => this.scene.restart();
-        btn.on('pointerdown', restart);
-        hitZone.on('pointerdown', restart);
+        // Use a delayed scene-level listener for restart (reliable on touch)
+        this.time.delayedCall(500, () => {
+            const restartHandler = (p: Phaser.Input.Pointer) => {
+                // Check tap is in button area (generous bounds)
+                if (p.y >= btnY - 10 && p.y <= btnY + btnH + 10 &&
+                    p.x >= btnX - 20 && p.x <= btnX + btnW + 20) {
+                    this.input.off('pointerdown', restartHandler);
+                    this.scene.restart();
+                }
+            };
+            this.input.on('pointerdown', restartHandler);
+        });
     }
 }

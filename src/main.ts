@@ -13,6 +13,12 @@ const config: Phaser.Types.Core.GameConfig = {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
+    input: {
+        activePointers: 1,
+        touch: {
+            capture: true,
+        },
+    },
     scene: [BootScene, GameScene],
 };
 
