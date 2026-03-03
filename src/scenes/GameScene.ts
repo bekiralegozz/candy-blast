@@ -92,9 +92,29 @@ export class GameScene extends Phaser.Scene {
         // Spawn initial shapes
         this.spawnNewShapes();
 
-        // Input
+        // Input — use scene-level events for reliable touch on iOS
+        this.input.on('pointerdown', (p: Phaser.Input.Pointer) => this.onPointerDown(p));
         this.input.on('pointermove', (p: Phaser.Input.Pointer) => this.onPointerMove(p));
         this.input.on('pointerup', (p: Phaser.Input.Pointer) => this.onPointerUp(p));
+    }
+
+    // ─── Tray Hit Detection (fallback for touch) ───
+
+    private onPointerDown(pointer: Phaser.Input.Pointer): void {
+        if (this.dragShape) return; // already dragging
+
+        // Check if pointer is in tray area
+        const trayTop = TRAY_Y - 55;
+        const trayBottom = TRAY_Y + 55;
+        if (pointer.y < trayTop || pointer.y > trayBottom) return;
+
+        // Find which tray slot was tapped
+        const spacing = GAME_WIDTH / 3;
+        const slotIndex = Math.floor(pointer.x / spacing);
+        if (slotIndex < 0 || slotIndex > 2) return;
+        if (this.currentShapes[slotIndex] === null) return;
+
+        this.startDrag(slotIndex, pointer);
     }
 
     // ─── Grid Drawing ───
@@ -248,8 +268,11 @@ export class GameScene extends Phaser.Scene {
             }
         }
 
-        const hitArea = this.add.rectangle(0, 0, shapeW + 20, shapeH + 20, 0x000000, 0);
-        hitArea.setInteractive({ draggable: false, useHandCursor: true });
+        // Large interactive hit zone covering the whole tray slot
+        const hitW = spacing - 10;
+        const hitH = 100;
+        const hitArea = this.add.rectangle(0, 0, hitW, hitH, 0x000000, 0);
+        hitArea.setInteractive({ useHandCursor: true });
         container.add(hitArea);
 
         hitArea.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
