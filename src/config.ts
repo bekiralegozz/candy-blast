@@ -17,16 +17,33 @@ export const GRID_Y = 160;
 export const TRAY_Y = 650;
 export const TRAY_BLOCK_SCALE = 0.6;
 
-// Candy colors
-export const CANDY_COLORS: { name: string; hex: number; css: string }[] = [
-    { name: 'red',    hex: 0xff4757, css: '#ff4757' },
-    { name: 'orange', hex: 0xff9f43, css: '#ff9f43' },
-    { name: 'yellow', hex: 0xfeca57, css: '#feca57' },
-    { name: 'green',  hex: 0x2ed573, css: '#2ed573' },
-    { name: 'blue',   hex: 0x54a0ff, css: '#54a0ff' },
-    { name: 'purple', hex: 0xa55eea, css: '#a55eea' },
-    { name: 'pink',   hex: 0xff6b81, css: '#ff6b81' },
+// Royal Match inspired gem/piece colors
+export const CANDY_COLORS: { name: string; hex: number; css: string; dark: number; light: number }[] = [
+    { name: 'red',    hex: 0xe84545, css: '#e84545', dark: 0xb82e2e, light: 0xff7b7b },  // Ruby
+    { name: 'blue',   hex: 0x2b7de9, css: '#2b7de9', dark: 0x1a5bb5, light: 0x6aadff },  // Sapphire
+    { name: 'green',  hex: 0x3bb54a, css: '#3bb54a', dark: 0x298a35, light: 0x6de87a },  // Emerald
+    { name: 'yellow', hex: 0xf5c842, css: '#f5c842', dark: 0xc9a020, light: 0xffe07a },  // Gold coin
+    { name: 'purple', hex: 0x9b59b6, css: '#9b59b6', dark: 0x7a3d96, light: 0xc39ddb },  // Amethyst
+    { name: 'orange', hex: 0xf39c12, css: '#f39c12', dark: 0xc87f0a, light: 0xffc04d },  // Amber
+    { name: 'cyan',   hex: 0x1abc9c, css: '#1abc9c', dark: 0x13967d, light: 0x55dfc4 },  // Aquamarine
 ];
+
+// Royal theme palette
+export const THEME = {
+    BG_TOP: 0x1a3a5c,       // Deep royal blue
+    BG_BOTTOM: 0x0d1f33,    // Darker navy
+    GRID_BG: 0x152a42,      // Grid panel background
+    GRID_CELL: 0x1c3554,    // Empty cell color
+    GRID_BORDER: 0xc8951e,  // Gold border
+    GOLD: 0xffd700,         // Pure gold
+    GOLD_DARK: 0xc8951e,    // Dark gold
+    GOLD_LIGHT: 0xffe44d,   // Light gold
+    PANEL_BG: 0x1a3050,     // UI panel background
+    TEXT_PRIMARY: '#ffffff',
+    TEXT_GOLD: '#ffd700',
+    TEXT_SECONDARY: '#8cadc4',
+    STAR: 0xffd700,
+};
 
 // Scoring
 export const SCORE_PER_CELL = 10;
